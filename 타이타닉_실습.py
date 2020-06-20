@@ -40,6 +40,8 @@ df["survived_rate"]=100*df["survived"]/(df["survived"]+df["dead"])
 from sklearn.linear_model import LogisticRegression 
 from sklearn.tree import DecisionTreeClassifier
 #모델링
+#생존에 큰 영향을 미치는건 Pclass라고 생각을 했고, 성별은 보니까 여자가 압도적으로 생존률이 높기에 반영했으며,
+#나이역시 생존에 큰 영향을 미칠것이라 생각해서 반영했다.
 X_train = train[['Sex','Pclass','Age']]
 y_train = train["Survived"]
 
