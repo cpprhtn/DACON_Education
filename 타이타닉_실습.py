@@ -40,12 +40,11 @@ df["survived_rate"]=100*df["survived"]/(df["survived"]+df["dead"])
 from sklearn.linear_model import LogisticRegression 
 from sklearn.tree import DecisionTreeClassifier
 #모델링
-#생존에 큰 영향을 미치는건 Pclass라고 생각을 했고, 성별은 보니까 여자가 압도적으로 생존률이 높기에 반영했으며,
-#나이역시 생존에 큰 영향을 미칠것이라 생각해서 반영했다.
-X_train = train[['Sex','Pclass','Age']]
+#현재'Sex','Pclass','Age','SibSp','Parch' 칼럼을 반영했을때 정확도가 가장 높았다
+X_train = train[['Sex','Pclass','Age','SibSp','Parch','Fare']]
 y_train = train["Survived"]
 
-test = test[['Sex','Pclass','Age']]
+test = test[['Sex','Pclass','Age','SibSp','Parch','Fare']]
 test["Sex"]=test["Sex"].map({"male":0,"female":1})
 X_test = test
 
@@ -66,6 +65,7 @@ dt_pred=dt.predict_proba(X_test)[:,1]
 print(lr.score(X_train,y_train))
 print(dt.score(X_train,y_train))
 #출력
+
 submission["Survived"] = lr_pred
 submission.to_csv('logistic_regression_pred.csv', index =False)
 submission["Survived"] = dt_pred
