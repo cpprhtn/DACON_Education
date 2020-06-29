@@ -34,8 +34,12 @@ train[train['hour_bef_windspeed'].isna()].index
 test.isna().sum()
 test["hour_bef_precipitation"] = test["hour_bef_precipitation"].fillna(0)
 train["hour_bef_precipitation"] = train["hour_bef_precipitation"].fillna(0)
+test.mean()
+#test["hour_bef_humidity"] = test["hour_bef_humidity"].fillna(56.588811)
+#train["hour_bef_humidity"] = train["hour_bef_humidity"].fillna(56.588811)
 test["hour_bef_humidity"] = test["hour_bef_humidity"].fillna(0)
 train["hour_bef_humidity"] = train["hour_bef_humidity"].fillna(0)
+train.isna().sum()
 
 features = ['hour','hour_bef_temperature','hour_bef_windspeed','hour_bef_precipitation','hour_bef_humidity']
 X_train = train[features]
