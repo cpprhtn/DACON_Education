@@ -13,9 +13,9 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
 import matplotlib.pyplot as plt
 
-train = pd.read_csv("train.csv")
-test = pd.read_csv("test.csv")
-submission= pd.read_csv("submission.csv")
+train = pd.read_csv("따릉이/train.csv")
+test = pd.read_csv("따릉이/test.csv")
+submission= pd.read_csv("따릉이/submission.csv")
 
 
 
@@ -42,24 +42,24 @@ X_train = train[features]
 y_train = train['count']
 X_test = test[features]
 
-model100 =  RandomForestRegressor(n_estimators=100, random_state = 0)
-model100_5 =  RandomForestRegressor(n_estimators=100, max_depth = 5, random_state=0)
-model200 =  RandomForestRegressor(n_estimators=200)
+model100 =  RandomForestRegressor(n_estimators=5000, random_state = 0)
+#model100_5 =  RandomForestRegressor(n_estimators=100, max_depth = 5, random_state=0)
+#model200 =  RandomForestRegressor(n_estimators=200)
 
 model100.fit(X_train, y_train)
-model100_5.fit(X_train, y_train)
-model200.fit(X_train, y_train)
+#model100_5.fit(X_train, y_train)
+#model200.fit(X_train, y_train)
 
 ypred1 = model100.predict(X_test)
-ypred2 = model100_5.predict(X_test)
-ypred3 = model200.predict(X_test)
+#ypred2 = model100_5.predict(X_test)
+#ypred3 = model200.predict(X_test)
 
 submission['count'] = ypred1
 submission.to_csv('model100.csv', index=False)
-submission['count'] = ypred2
-submission.to_csv('model100_5.csv', index=False)
-submission['count'] = ypred1
-submission.to_csv('model200.csv', index=False)
+#submission['count'] = ypred2
+#submission.to_csv('model100_5.csv', index=False)
+#submission['count'] = ypred1
+#submission.to_csv('model200.csv', index=False)
 
 
 
