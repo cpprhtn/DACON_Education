@@ -60,9 +60,13 @@ train.info()
 #정류소 이름 숫자로 labeling
 #pd.concat() : 데이터프레임들을 위아래 또는 좌우로 붙혀 하나로 합침
 
+
+
+#data값은 따로 존재하진 않음, 그냥 전체 길이 확인 가능
 unique_station = pd.concat([train['now_station'], train['next_station'], test['now_station'], test['next_station']], axis=0).unique()
 
 len(unique_station)
+
 
 station_label = {}
 for idx, station in enumerate(unique_station):
@@ -80,7 +84,7 @@ test['next_station'] = test['next_station'].map(station_label)
 
 
 train.groupby(['now_arrive_time'])['next_arrive_time'].mean().plot(kind='bar')
-
+#공통적인 맨 뒤의 ~시 부분을 짤라줌
 train['now_arrive_time'] = train['now_arrive_time'].str[:-1].astype(int)
 test['now_arrive_time'] = test['now_arrive_time'].str[:-1].astype(int)
 
