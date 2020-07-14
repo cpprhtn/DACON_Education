@@ -8,17 +8,44 @@ Created on Sat Jun 20 13:59:13 2020
 
 
 import pandas as pd
+import numpy as np
 
-train = pd.read_csv("/Users/cpprhtn/Documents/Python_Busan/titanic/train.csv")
-test = pd.read_csv("/Users/cpprhtn/Documents/Python_Busan/titanic/test.csv")
-submission= pd.read_csv("/Users/cpprhtn/Documents/Python_Busan/titanic/sample_submission.csv")
+train = pd.read_csv("train.csv")
+test = pd.read_csv("test.csv")
+submission= pd.read_csv("sample_submission.csv")
+
+
+
 #전처리
-train["Age"] = train["Age"].fillna(28)
-test["Age"] = test["Age"].fillna(28)
+train.info()
+train.isna().sum()
+
+df = train.copy()
+df2 = train.copy()
+gender = { "male":0, "female":1}
+df2["Sex"].replace(gender)
+df['Age'].fillna(df.groupby('Sex')['Age'].transform('mean'), inplace=True)
+df.isna().sum()
+train["Age"].mean() #29.69911764705882
+df["Age"].mean()
+
+df.describe()
+train["Cabin"] #객실 번호
+
+train.groupby(["Embarked"])["Embarked"].plot(kind="bar")
+train["Embarked"]
+
+train["Age"] = train["Age"].fillna(30)
+test["Age"] = test["Age"].fillna(30)
 train["Embarked"] = train["Embarked"].fillna("S")
 train.isna().sum()
+
+test["Fare"].mean()
 test.isna().sum()
+
+test["Fare"] = test["Fare"].fillna(36)
 train["Sex"]=train["Sex"].map({"male":0,"female":1})
+
 
 ''' 사실상 불필요
 survived = train[train["Survived"]==0]
@@ -57,6 +84,7 @@ lr.fit(X_train,y_train)
 
 dt.fit(X_train,y_train)
 
+train.isna().sum()
 
 lr.predict(X_test)
 dt.predict(X_test)
