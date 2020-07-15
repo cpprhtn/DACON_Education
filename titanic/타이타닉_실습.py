@@ -23,36 +23,77 @@ test.isna().sum()
 train['Age'].fillna(train.groupby('Pclass')['Age'].transform('mean'), inplace=True)
 test['Age'].fillna(test.groupby('Pclass')['Age'].transform('mean'), inplace=True)
 train['Age'].mean()
+
+
 gender = { "male":0, "female":1}
 train['Sex']=train['Sex'].replace(gender)
 test['Sex']=test['Sex'].replace(gender)
+
 
 train = train.drop(['Cabin'], axis = 1)
 test = test.drop(['Cabin'], axis = 1)
 
 
 train.isna().sum()
-test.isna().sum()
+test.isna().sum() #test 데이터는 나중에 Pre_test로 씀
 
-train['Embarked'].value_counts()
-train['Embarked'].fillna('S')
-
+'''
 train = train.dropna()
 test = test.dropna()
-
 train.isna().sum()
 test.isna().sum()
+'''
 
 
-from sklearn.linear_model import LogisticRegression 
-from sklearn.tree import DecisionTreeClassifier
-#모델링
+
 #현재'Sex','Pclass','Age','SibSp','Parch' 칼럼을 반영했을때 정확도가 가장 높았다
+#필요한 칼럼만
 X_train = train[['Sex','Pclass','Age','SibSp','Parch']]
 y_train = train["Survived"]
 
-X_test = test[['Sex','Pclass','Age','SibSp','Parch']]
 
+
+from sklearn.model_selection import train_test_split
+import tensorflow as tf
+import keras
+from keras.models import Sequential
+from keras.layers.core import Dense
+
+#Train data만 가지고 나눠서 훈련 
+X_train, X_test, y_train, y_test = train_test_split(X_train, y_train, test_size=0.1, random_state=7)
+
+np.random.seed(7)
+
+
+
+model = Sequential()
+model.add(Dense(255, input_shape=(5,), activation='relu'))
+model.add(Dense((1), activation='sigmoid'))
+model.compile(loss='mse', optimizer='Adam', metrics=['accuracy'])
+model.summary()
+
+
+
+hist = model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=500)
+
+plt.figure(figsize=(12,8))
+plt.plot(hist.history['loss'])
+plt.plot(hist.history['val_loss'])
+plt.plot(hist.history['accuracy'])
+plt.plot(hist.history['val_accuracy'])
+plt.legend(['loss','val_loss', 'accuracy','val_accuracy'])
+plt.show()
+
+
+#예측해야하는 데이터...
+Pre_test = test[['Sex','Pclass','Age','SibSp','Parch']]
+
+
+
+
+'''
+from sklearn.linear_model import LogisticRegression 
+from sklearn.tree import DecisionTreeClassifier
 
 lr = LogisticRegression()
 
@@ -63,10 +104,10 @@ lr.fit(X_train,y_train)
 
 dt.fit(X_train,y_train)
 
-lr.predict(X_test)
-dt.predict(X_test)
-lr_pred=lr.predict_proba(X_test)[:,1]
-dt_pred=dt.predict_proba(X_test)[:,1]
+lr.predict(Pre_test)
+dt.predict(Pre_test)
+lr_pred=lr.predict_proba(Pre_test)[:,1]
+dt_pred=dt.predict_proba(Pre_test)[:,1]
 print(lr.score(X_train,y_train))
 print(dt.score(X_train,y_train))
 #출력
@@ -75,3 +116,4 @@ submission["Survived"] = lr_pred
 submission.to_csv('logistic_regression_pred.csv', index =False)
 submission["Survived"] = dt_pred
 submission.to_csv('decision_tree_pred.csv', index =False)
+'''
