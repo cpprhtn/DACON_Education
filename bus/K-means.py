@@ -26,6 +26,7 @@ sns.lmplot('x', 'y', data = data, fit_reg=False)
 from sklearn.cluster import KMeans
 
 kmeans_clst = KMeans(n_clusters=10, random_state=777).fit(data[['x', 'y']])
-data['clst'] = kmeans_clst.labels_
-
+data
+data['clst'] = kmeans_clst.labels_ #라벨을 붙여줘야 df에 반영됨
+data
 sns.lmplot('x', 'y', data = data, fit_reg=False, hue="clst")

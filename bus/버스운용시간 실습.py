@@ -16,13 +16,14 @@ train = pd.read_csv("train.csv")
 test = pd.read_csv("test.csv")
 submission= pd.read_csv("submission_제출양식.csv")
 
-
+train.isna().sum()
 train.info()
 
 #datetime로 형변환
 train['date'] = pd.to_datetime(train['date'])
 test['date'] = pd.to_datetime(test['date'])
 
+train.info()
 train.groupby(['date'])['next_arrive_time'].mean().plot(kind='bar')
 
 #요일 데이터로 변환
@@ -30,8 +31,9 @@ train.groupby(['date'])['next_arrive_time'].mean().plot(kind='bar')
 train['weekday'] = train['date'].dt.weekday
 test['weekday'] = test['date'].dt.weekday
 
+train
 #요일별 평균시간
-train.groupby(['weekday'])['next_arrive_time'].mean()
+train.groupby(['weekday'])['next_arrive_time'].mean().plot() #5,6 -> 즉 주말에서 평균 시간이 크게 하락
 
 #노선별 한정거장 이동시
 train['route_nm'].unique()
@@ -71,6 +73,8 @@ len(unique_station)
 station_label = {}
 for idx, station in enumerate(unique_station):
     station_label[station] = idx
+
+station_label
     
 train['now_station'] = train['now_station'].map(station_label)
 train['next_station'] = train['next_station'].map(station_label)
@@ -129,6 +133,7 @@ for i in range(10): # 총 10개 구간으로 클러스터링
     for station in train[train['now_clst']==i]['now_station'].unique(): # 각 구간의 정류소
         now_station[station] = i # 해당 정류소의 label
 
+now_station
 test['now_clst'] = test['now_station'].map(now_station) # test도 train과 동일하게 labeling
 
 
@@ -166,6 +171,7 @@ x_test = test[columns]
 
 
 from sklearn.model_selection import KFold
+'''
 import xgboost as xgb
 
 
@@ -186,7 +192,7 @@ for train_idx, val_idx in k_fold.split(X_train):
             }
     
     xgb_models.append(xgb.train(params, d_train, 1000, watchlist, verbose_eval=100, early_stopping_rounds=100))
-
+'''
 
 
 import lightgbm as lgb
