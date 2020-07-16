@@ -87,12 +87,14 @@ merged.loc[merged[Columns.Fare].isnull(), [Columns.Fare]] = merged[Columns.Fare]
 
 sns.distplot(merged[Columns.Fare])
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+https://www.kaggle.com/vh1981/kaggle-titanic-keras/notebook
+
+
