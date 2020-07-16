@@ -9,6 +9,9 @@ Created on Sat Jun 20 13:59:13 2020
 
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.neighbors import KNeighborsRegressor
+
 
 train = pd.read_csv("train.csv")
 test = pd.read_csv("test.csv")
@@ -19,19 +22,29 @@ submission= pd.read_csv("sample_submission.csv")
 #전처리
 train.isna().sum()
 test.isna().sum()
-
+'''
 train['Age'].fillna(train.groupby('Pclass')['Age'].transform('mean'), inplace=True)
 test['Age'].fillna(test.groupby('Pclass')['Age'].transform('mean'), inplace=True)
 train['Age'].mean()
+'''
 
+train = train[['Sex','Pclass','Age','SibSp','Parch','Survived']]
+test = test[['Sex','Pclass','Age','SibSp','Parch']]
 
 gender = { "male":0, "female":1}
 train['Sex']=train['Sex'].replace(gender)
 test['Sex']=test['Sex'].replace(gender)
 
 
-train = train.drop(['Cabin'], axis = 1)
-test = test.drop(['Cabin'], axis = 1)
+knn = KNeighborsRegressor()
+# 나이가 있는 데이터로 fit해서 모델을 생성
+knn.fit(train[train['Age'].isnull()==False][train.columns.drop('Age')],
+       train[train['Age'].isnull()==False]['Age'])
+# 나이가 결측인 데이터를 예측
+guesses = knn.predict(train[train['Age'].isnull()==True][train.columns.drop('Age')])
+guesses
+
+train.loc[train['Age'].isnull()==True,'Age'] = guesses
 
 
 train.isna().sum()
@@ -88,10 +101,10 @@ plt.show()
 #예측해야하는 데이터...
 Pre_test = test[['Sex','Pclass','Age','SibSp','Parch']]
 
+model.predict(Pre_test)
+model_pred=model.predict(Pre_test)
+model_pred
 
-
-
-'''
 from sklearn.linear_model import LogisticRegression 
 from sklearn.tree import DecisionTreeClassifier
 
