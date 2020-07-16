@@ -266,7 +266,7 @@ pred = models[maxidx].predict(test, batch_size=test.shape[0], verbose=1)
 pred
 
 from sklearn.preprocessing import Binarizer
-binarizer=Binarizer(0.5)
+binarizer=Binarizer(0.6)
 
 test_predict_result=binarizer.fit_transform(pred)
 test_predict_result=test_predict_result.astype(np.int32)
