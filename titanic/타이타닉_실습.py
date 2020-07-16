@@ -17,63 +17,83 @@ submission= pd.read_csv("sample_submission.csv")
 
 
 #전처리
-train.info()
 train.isna().sum()
-
-df = train.copy()
-df2 = train.copy()
-gender = { "male":0, "female":1}
-df2["Sex"].replace(gender)
-df['Age'].fillna(df.groupby('Sex')['Age'].transform('mean'), inplace=True)
-df.isna().sum()
-train["Age"].mean() #29.69911764705882
-df["Age"].mean()
-
-df.describe()
-train["Cabin"] #객실 번호
-
-train.groupby(["Embarked"])["Embarked"].plot(kind="bar")
-train["Embarked"]
-
-train["Age"] = train["Age"].fillna(30)
-test["Age"] = test["Age"].fillna(30)
-train["Embarked"] = train["Embarked"].fillna("S")
-train.isna().sum()
-
-test["Fare"].mean()
 test.isna().sum()
 
-test["Fare"] = test["Fare"].fillna(36)
-train["Sex"]=train["Sex"].map({"male":0,"female":1})
+train['Age'].fillna(train.groupby('Pclass')['Age'].transform('mean'), inplace=True)
+test['Age'].fillna(test.groupby('Pclass')['Age'].transform('mean'), inplace=True)
+train['Age'].mean()
 
 
-''' 사실상 불필요
-survived = train[train["Survived"]==0]
-dead = train[train["Survived"]==1]
-survived_cnt=survived["Pclass"].value_counts()
-dead_cnt=dead["Pclass"].value_counts()
+gender = { "male":0, "female":1}
+train['Sex']=train['Sex'].replace(gender)
+test['Sex']=test['Sex'].replace(gender)
 
-df = pd.DataFrame([survived_cnt,dead_cnt])
-df.index=["survived","dead"]
 
-df.plot(kind="bar",figsize=(15,8))
-df["survived_rate"].plot(kind="bar",figsize=(15,8))
+train = train.drop(['Cabin'], axis = 1)
+test = test.drop(['Cabin'], axis = 1)
 
-df= df.T
-df["survived_rate"]=100*df["survived"]/(df["survived"]+df["dead"])
+
+train.isna().sum()
+test.isna().sum() #test 데이터는 나중에 Pre_test로 씀
+
+'''
+train = train.dropna()
+test = test.dropna()
+train.isna().sum()
+test.isna().sum()
 '''
 
 
-from sklearn.linear_model import LogisticRegression 
-from sklearn.tree import DecisionTreeClassifier
-#모델링
+
 #현재'Sex','Pclass','Age','SibSp','Parch' 칼럼을 반영했을때 정확도가 가장 높았다
-X_train = train[['Sex','Pclass','Age','SibSp','Parch','Fare']]
+#필요한 칼럼만
+X_train = train[['Sex','Pclass','Age','SibSp','Parch']]
 y_train = train["Survived"]
 
-test = test[['Sex','Pclass','Age','SibSp','Parch','Fare']]
-test["Sex"]=test["Sex"].map({"male":0,"female":1})
-X_test = test
+
+
+from sklearn.model_selection import train_test_split
+import tensorflow as tf
+import keras
+from keras.models import Sequential
+from keras.layers.core import Dense
+
+#Train data만 가지고 나눠서 훈련 
+X_train, X_test, y_train, y_test = train_test_split(X_train, y_train, test_size=0.1, random_state=7)
+
+np.random.seed(7)
+
+
+
+model = Sequential()
+model.add(Dense(255, input_shape=(5,), activation='relu'))
+model.add(Dense((1), activation='sigmoid'))
+model.compile(loss='mse', optimizer='Adam', metrics=['accuracy'])
+model.summary()
+
+
+
+hist = model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=500)
+
+plt.figure(figsize=(12,8))
+plt.plot(hist.history['loss'])
+plt.plot(hist.history['val_loss'])
+plt.plot(hist.history['accuracy'])
+plt.plot(hist.history['val_accuracy'])
+plt.legend(['loss','val_loss', 'accuracy','val_accuracy'])
+plt.show()
+
+
+#예측해야하는 데이터...
+Pre_test = test[['Sex','Pclass','Age','SibSp','Parch']]
+
+
+
+
+'''
+from sklearn.linear_model import LogisticRegression 
+from sklearn.tree import DecisionTreeClassifier
 
 lr = LogisticRegression()
 
@@ -84,12 +104,10 @@ lr.fit(X_train,y_train)
 
 dt.fit(X_train,y_train)
 
-train.isna().sum()
-
-lr.predict(X_test)
-dt.predict(X_test)
-lr_pred=lr.predict_proba(X_test)[:,1]
-dt_pred=dt.predict_proba(X_test)[:,1]
+lr.predict(Pre_test)
+dt.predict(Pre_test)
+lr_pred=lr.predict_proba(Pre_test)[:,1]
+dt_pred=dt.predict_proba(Pre_test)[:,1]
 print(lr.score(X_train,y_train))
 print(dt.score(X_train,y_train))
 #출력
@@ -98,3 +116,4 @@ submission["Survived"] = lr_pred
 submission.to_csv('logistic_regression_pred.csv', index =False)
 submission["Survived"] = dt_pred
 submission.to_csv('decision_tree_pred.csv', index =False)
+'''
