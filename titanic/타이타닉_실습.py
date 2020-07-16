@@ -103,7 +103,17 @@ Pre_test = test[['Sex','Pclass','Age','SibSp','Parch']]
 
 model.predict(Pre_test)
 model_pred=model.predict(Pre_test)
-model_pred
+
+from sklearn.preprocessing import Binarizer
+binarizer=Binarizer(0.5)
+
+test_predict_result=binarizer.fit_transform(model_pred)
+test_predict_result=test_predict_result.astype(np.int32)
+#print(test_predict_result[:10])
+submission = pd.DataFrame({"PassengerId" : test_passenger_id, "Survived":test_predict_result.reshape(-1)})
+submission.to_csv('submission.csv', index=False)
+
+
 
 from sklearn.linear_model import LogisticRegression 
 from sklearn.tree import DecisionTreeClassifier

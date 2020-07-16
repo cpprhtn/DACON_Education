@@ -193,21 +193,86 @@ print(train_Y.shape)
 
 
 
+'''
+keras로 FC레이어를 몇 개 쌓아서 만든 model 생성
+kfold cross-validation 사용해서 model train
+2에서 train완료된 모델 중 accuracy가 가장 높은 모델 선택해서 test데이터 판정
+csv파일로 생성
+'''
+import keras
+from keras import layers, models
+from keras.models import Sequential
+from sklearn.model_selection import KFold
+from sklearn.model_selection import StratifiedKFold
+
+
+train_X = train_X.astype(np.float32)
+train_Y = train_Y.astype(np.float32)
+
+
+class SimpleNN(Sequential):
+    def __init__(self, input_shape, dropout):
+        super().__init__()
+        
+        self.add(layers.Dense(units=255, activation='relu', input_shape=input_shape))
+        self.add(layers.Dropout(dropout))
+        
+        self.add(layers.Dense(units=8, activation='relu'))
+        self.add(layers.Dropout(dropout))
+        
+        self.add(layers.Dense(units=1, activation='sigmoid'))
+        self.add(layers.Dropout(dropout))
+        
+        self.compile(loss="mse", optimizer='adam', metrics=['accuracy'])
 
 
 
+batch_size = 32
+epochs = 30
+dropout = 0.0
+n_splits = 10
 
 
+kfold = KFold(n_splits=n_splits, shuffle=True, random_state=7)
+
+cvscores = []
+models = []
+acc_hist = []
+
+for _train, _test in kfold.split(train_X, train_Y):
+    model = SimpleNN(input_shape=(train_X.shape[1],), dropout=dropout)
+    history = model.fit(train_X[_train], train_Y[_train], epochs=epochs, batch_size=batch_size, verbose=1)
+    acc_hist.append(history.history['accuracy'])
+    #evaluate model:
+    scores = model.evaluate(train_X[_test], train_Y[_test], verbose=0)    
+    print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
+    cvscores.append(scores[1] * 100)
+    models.append(model)
+
+fig, ax = plt.subplots(nrows=10, ncols=1, figsize=(n_splits, 8 * n_splits))
+for i in range(len(acc_hist)):
+    title = "model " + str(i)    
+    ax[i].plot(acc_hist[i])
+    ax[i].set_title(title)
+plt.show()
+
+print("%.2f%% (+/- %.2f%%)" % (np.mean(cvscores), np.std(cvscores)))
+maxidx = np.argmax(cvscores)
+print("Max : [", maxidx, "] : ", "{0:.2f}".format(cvscores[maxidx]))
 
 
+# 가장 점수가 높은 모델로 test 데이터를 돌린다.
+pred = models[maxidx].predict(test, batch_size=test.shape[0], verbose=1)
+pred
 
+from sklearn.preprocessing import Binarizer
+binarizer=Binarizer(0.5)
 
-
-
-
-
-
-
+test_predict_result=binarizer.fit_transform(pred)
+test_predict_result=test_predict_result.astype(np.int32)
+#print(test_predict_result[:10])
+submission = pd.DataFrame({"PassengerId" : test_passenger_id, "Survived":test_predict_result.reshape(-1)})
+submission.to_csv('submission.csv', index=False)
 
 
 
