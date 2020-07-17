@@ -73,11 +73,11 @@ from keras.models import Sequential
 from keras.layers.core import Dense
 
 #Train data만 가지고 나눠서 훈련 
-X_train, X_test, y_train, y_test = train_test_split(X_train, y_train, test_size=0.1, random_state=7)
+X_train, X_test, y_train, y_test = train_test_split(X_train, y_train, test_size=0.2, random_state=7)
 
 np.random.seed(7)
 
-
+X_train.shape[1]
 
 model = Sequential()
 model.add(Dense(255, input_shape=(5,), activation='relu'))
@@ -101,7 +101,7 @@ plt.show()
 #예측해야하는 데이터...
 Pre_test = test[['Sex','Pclass','Age','SibSp','Parch']]
 
-model.predict(Pre_test)
+model.predict_classes(Pre_test)
 model_pred=model.predict(Pre_test)
 
 from sklearn.preprocessing import Binarizer
