@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Jul 17 19:53:58 2020
+
+@author: cpprhtn
+"""
+
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+
+train = pd.read_csv("train.csv")
+test = pd.read_csv("test.csv")
+submission= pd.read_csv("submission_제출양식.csv")
+
+
+# train 데이터에서 'now arrive time'이 '00시''이면 제거함 (test에 '00시'가 없음)
+indexNames = train[train['now_arrive_time'] == "00시"].index
+train.drop(indexNames, inplace=True)
+
+
+# train 데이터에서 'next station'이 '전경대 입구'이면 제거함 (test에 '전경대 입구'가 없음)
+indexNames = train[train['next_station'] == "전경대 입구"].index
+train.drop(indexNames, inplace=True)
+
+
+# test 데이터에서 'now_station'이 '제주한라대학교'인 경우 이를 제주한라대학교가 있는 노선 상의
+# 가장 가까운 버스정류장인 '노형오거리'로 바꿈 (train 데이터에 '제주한라대학교'가 없음)
+indexNames = test[test['now_station'] == "제주한라대학교(종점)"].index
+test['now_station'].replace("제주한라대학교(종점)", "노형오거리")
+
+test['now_station'].unique()
+
+
+# train과 test에서 'day'(날짜)를 요일로 변환함
+train['day'] = pd.to_datetime(train['date']).dt.weekday
+test['day'] = pd.to_datetime(test['date']).dt.weekday
+
+train.drop(['date'], inplace=True, axis =1 )
+
+test.drop(['date'], inplace=True, axis =1 )
+train.isna().sum()
+
+train.drop('id',inplace=True, axis=1)
+test.drop('id',inplace=True, axis=1)
+
+train.drop(['now_latitude','now_longitude'],inplace=True, axis=1)
+test.drop('id',inplace=True, axis=1)
+
+
+
+
+
+one_hot_train = pd.get_dummies(train)
+
+one_hot_test = pd.get_dummies(test)
+
+input_len = len(one_hot_train.columns)
+
+X_train = np.array(train)
+
+X_test = np.array(test)
+
+
+X_train = one_hot_train.values.tolist()
+
+X_test = one_hot_test.values.tolist()
+
+# train과 test를 numpy 배열로 변환함
+
+X_train = np.array(X_train)
+
+X_test = np.array(X_test)
+
+Y_train = np.array(Y_train)
+
